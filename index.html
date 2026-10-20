@@ -91,8 +91,6 @@ button,input,select,textarea{font:inherit; color:inherit}
 .stat .v small{font-size:13px; color:var(--muted); margin-left:2px}
 
 /* layout */
-.cols{display:grid; grid-template-columns:minmax(0,1.45fr) minmax(0,1fr); gap:16px; align-items:start}
-.col{display:flex; flex-direction:column; gap:16px; min-width:0}
 .proj-grid{display:grid; grid-template-columns:repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap:16px; align-items:start}
 
 /* lists */
@@ -261,8 +259,50 @@ pre.code{margin:0; background:var(--surface2); border:1px solid var(--line); bor
 .feel-opt input:focus-visible + .dot{outline:2px solid var(--accent); outline-offset:2px}
 textarea.code-in{font-family:var(--mono); font-size:12.5px; white-space:pre; overflow-x:auto}
 .ext{font-size:13px}
+
+/* page layout: 1단(좁은 화면) → 2단(반 화면) → 3단(전체 화면) */
+.dash{max-width:1760px; display:grid; grid-template-columns:minmax(0,1fr); gap:16px; align-items:start}
+.col{display:contents}
+@media (max-width: 799px){
+  #sec-today{order:1} #sec-week{order:2} #sec-goals{order:3} #sec-habit{order:4} #sec-grass{order:5}
+  #sec-log{order:6} #sec-cred{order:7} #sec-proj{order:8} #sec-apps{order:9}
+}
+@media (min-width: 800px){
+  .dash{grid-template-columns:repeat(2, minmax(0,1fr)); grid-template-areas:"head head" "c1 c2" "proj proj" "apps apps"}
+  .dash > header{grid-area:head}
+  .c1{grid-area:c1} .c2{grid-area:c2} #sec-proj{grid-area:proj} #sec-apps{grid-area:apps}
+  .col{display:flex; flex-direction:column; gap:16px; min-width:0}
+}
+@media (min-width: 1280px){
+  .dash{grid-template-columns:repeat(3, minmax(0,1fr)); grid-template-areas:"head head head" "c1 c2 apps" "proj proj proj"}
+}
+
+/* 지원 현황 표 */
+#sec-apps{container-type:inline-size; container-name:apps}
+.mono{font-family:var(--mono)}
+.muted{color:var(--muted)}
+.ascroll{overflow-x:auto}
+.at{width:100%; border-collapse:separate; border-spacing:0; font-size:13px}
+.at th,.at td{padding:8px; border-top:1px solid var(--line); text-align:left; vertical-align:middle; font-weight:400}
+.at thead th{border-top:0; font-size:11px; color:var(--muted); font-weight:500; white-space:nowrap}
+.at .hn{position:sticky; left:0; background:var(--surface); z-index:1; min-width:150px}
+.atoggle{display:flex; gap:8px; align-items:flex-start; border:0; background:none; cursor:pointer; text-align:left; padding:0; width:100%}
+.aname{display:flex; flex-direction:column; min-width:0}
+.aname b{font-weight:600; overflow-wrap:anywhere}
+.aname small{color:var(--muted); font-size:12px; overflow-wrap:anywhere}
+.arow.open th,.arow.open td{background:var(--surface2)}
+.a-stack .chip{display:inline-block; margin:0 4px 4px 0}
+.a-link a{text-decoration:none; font-size:15px}
+.adetail > td{background:var(--surface2); padding:14px}
+.adform{display:flex; flex-direction:column; gap:12px}
+.af-grid{display:grid; grid-template-columns:repeat(auto-fit, minmax(170px, 1fr)); gap:10px}
+.af-grid3{display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:10px}
+.adform label{display:flex; flex-direction:column; gap:4px; font-size:12px; color:var(--muted)}
+.adform .ed{background:var(--surface)}
+@container apps (max-width: 700px){
+  .a-loc,.a-stack{display:none}
+}
 @media (max-width: 760px){
-  .cols{grid-template-columns:minmax(0,1fr)}
   .stats{grid-template-columns:repeat(2, minmax(0,1fr))}
   .stat:nth-child(3){border-left:0}
   .stat:nth-child(n+3){border-top:1px solid var(--line)}
@@ -286,7 +326,7 @@ textarea.code-in{font-family:var(--mono); font-size:12.5px; white-space:pre; ove
     </form>
   </section>
 </div>
-<div class="wrap" id="app" hidden>
+<div class="wrap dash" id="app" hidden>
   <header class="panel top">
     <div class="top-main">
       <div class="head-box">
@@ -302,9 +342,49 @@ textarea.code-in{font-family:var(--mono); font-size:12.5px; white-space:pre; ove
     <div class="stats" id="stats"></div>
   </header>
 
-  <div class="cols">
-    <div class="col">
-      <section class="panel" aria-labelledby="h-today">
+  <div class="col c1">
+    <section id="sec-week" class="panel" aria-labelledby="h-week">
+        <div class="panel-head"><h2 id="h-week">최근 7일</h2><span class="count">완료한 할 일 비율</span></div>
+        <div class="week" id="week"></div>
+      </section>
+
+    <section id="sec-grass" class="panel" aria-labelledby="h-grass">
+    <div class="panel-head"><h2 id="h-grass">잔디</h2><span class="count" id="grass-meta"></span></div>
+    <p class="hint">할 일에서 <b>코테</b>나 <b>프로젝트</b> 분류 항목을 체크한 날만 채워져요.</p>
+    <div class="grass-scroll" id="grass-scroll"><div class="grass" id="grass"></div></div>
+    <div class="legend">적음 <i class="gc"></i><i class="gc l1"></i><i class="gc l2"></i><i class="gc l3"></i> 많음</div>
+  </section>
+
+    <section id="sec-habit" class="panel" aria-labelledby="h-habit">
+    <div class="panel-head"><h2 id="h-habit">습관 트래커</h2><div class="habit-tools" id="habit-tools"></div></div>
+    <p class="hint">기본 습관은 예시예요. 칸을 누르면 그날 한 걸로 표시돼요.</p>
+    <div class="hscroll" id="habit-box"></div>
+    <form class="add" id="habit-form" autocomplete="off">
+      <input type="text" id="habit-input" placeholder="습관 추가 (예: 운동)" maxlength="30" aria-label="습관 추가">
+      <button class="btn" type="submit">추가</button>
+    </form>
+  </section>
+
+    <section id="sec-cred" class="panel cred" aria-labelledby="h-cred">
+        <div class="panel-head"><h2 id="h-cred">자격 · 스펙</h2></div>
+        <ul class="list" id="cred-list"></ul>
+        <div id="cred-tools"></div>
+      </section>
+  </div>
+
+  <div class="col c2">
+    <section id="sec-log" class="panel" aria-labelledby="h-log">
+    <div class="panel-head">
+      <h2 id="h-log">코테 기록</h2>
+      <div class="proj-tools"><span class="count" id="log-count"></span><button class="btn sm" type="button" id="log-new">+ 문제 기록</button></div>
+    </div>
+    <div id="log-form-box"></div>
+    <div class="log-filter"><div id="log-chips"></div><input class="ed" type="search" id="log-q" placeholder="제목 · 레벨 검색" aria-label="코테 기록 검색"></div>
+    <ul class="list" id="log-list"></ul>
+    <datalist id="log-levels"></datalist>
+  </section>
+
+    <section id="sec-today" class="panel" aria-labelledby="h-today">
         <div class="panel-head"><h2 id="h-today">오늘 할 일</h2><span class="count" id="today-count"></span></div>
         <p class="hint">기본 항목은 예시예요. 편집 버튼으로 이름도 바꿀 수 있어요.</p>
         <ul class="list" id="today-list"></ul>
@@ -321,14 +401,7 @@ textarea.code-in{font-family:var(--mono); font-size:12.5px; white-space:pre; ove
         </form>
       </section>
 
-      <section class="panel" aria-labelledby="h-week">
-        <div class="panel-head"><h2 id="h-week">최근 7일</h2><span class="count">완료한 할 일 비율</span></div>
-        <div class="week" id="week"></div>
-      </section>
-    </div>
-
-    <div class="col">
-      <section class="panel" aria-labelledby="h-goals">
+    <section id="sec-goals" class="panel" aria-labelledby="h-goals">
         <div class="panel-head"><h2 id="h-goals">앞으로 목표</h2><span class="count" id="goal-count"></span></div>
         <ul class="list" id="goal-list"></ul>
         <form class="add" id="goal-form" autocomplete="off">
@@ -336,59 +409,29 @@ textarea.code-in{font-family:var(--mono); font-size:12.5px; white-space:pre; ove
           <button class="btn" type="submit">추가</button>
         </form>
       </section>
-
-      <section class="panel cred" aria-labelledby="h-cred">
-        <div class="panel-head"><h2 id="h-cred">자격 · 스펙</h2></div>
-        <ul class="list" id="cred-list"></ul>
-        <div id="cred-tools"></div>
-      </section>
-    </div>
   </div>
 
-  <section class="panel" aria-labelledby="h-grass">
-    <div class="panel-head"><h2 id="h-grass">잔디</h2><span class="count" id="grass-meta"></span></div>
-    <p class="hint">할 일에서 <b>코테</b>나 <b>프로젝트</b> 분류 항목을 체크한 날만 채워져요.</p>
-    <div class="grass-scroll" id="grass-scroll"><div class="grass" id="grass"></div></div>
-    <div class="legend">적음 <i class="gc"></i><i class="gc l1"></i><i class="gc l2"></i><i class="gc l3"></i> 많음</div>
-  </section>
-
-  <section class="panel" aria-labelledby="h-habit">
-    <div class="panel-head"><h2 id="h-habit">습관 트래커</h2><div class="habit-tools" id="habit-tools"></div></div>
-    <p class="hint">기본 습관은 예시예요. 칸을 누르면 그날 한 걸로 표시돼요.</p>
-    <div class="hscroll" id="habit-box"></div>
-    <form class="add" id="habit-form" autocomplete="off">
-      <input type="text" id="habit-input" placeholder="습관 추가 (예: 운동)" maxlength="30" aria-label="습관 추가">
-      <button class="btn" type="submit">추가</button>
+  <section class="panel" id="sec-apps" aria-labelledby="h-app">
+    <div class="panel-head">
+      <h2 id="h-app">지원 현황</h2>
+      <div class="proj-tools"><span class="count" id="app-count"></span>
+        <select class="ed" id="app-sort" aria-label="정렬"><option value="added">추가한 순</option><option value="deadline">마감 임박순</option></select></div>
+    </div>
+    <p class="hint">줄을 누르면 요구 스택, 우대사항, 근무지 같은 상세 내용을 적을 수 있어요.</p>
+    <div id="app-box"></div>
+    <form class="add" id="app-form" autocomplete="off">
+      <input type="text" id="app-company" placeholder="회사명" maxlength="40" aria-label="회사명">
+      <input type="text" id="app-role" placeholder="직무 (예: 백엔드, 임베디드)" maxlength="40" aria-label="직무">
+      <button class="btn" type="submit">+ 공고 추가</button>
     </form>
   </section>
 
-  <section aria-labelledby="h-proj">
+  <section id="sec-proj" aria-labelledby="h-proj">
     <div class="panel-head">
       <h2 id="h-proj" style="font-size:15px;font-weight:600">포트폴리오 프로젝트</h2>
       <div class="proj-tools"><span class="count" id="proj-count"></span><span id="proj-tools"></span></div>
     </div>
     <div class="proj-grid" id="proj-grid"></div>
-  </section>
-
-  <section class="panel" aria-labelledby="h-log">
-    <div class="panel-head">
-      <h2 id="h-log">코테 기록</h2>
-      <div class="proj-tools"><span class="count" id="log-count"></span><button class="btn sm" type="button" id="log-new">+ 문제 기록</button></div>
-    </div>
-    <div id="log-form-box"></div>
-    <div class="log-filter"><div id="log-chips"></div><input class="ed" type="search" id="log-q" placeholder="제목 · 레벨 검색" aria-label="코테 기록 검색"></div>
-    <ul class="list" id="log-list"></ul>
-    <datalist id="log-levels"></datalist>
-  </section>
-
-  <section class="panel" aria-labelledby="h-app">
-    <div class="panel-head"><h2 id="h-app">지원 현황</h2><span class="count" id="app-count"></span></div>
-    <ul class="list" id="app-list"></ul>
-    <form class="add" id="app-form" autocomplete="off">
-      <input type="text" id="app-company" placeholder="회사명" maxlength="40" aria-label="회사명">
-      <input type="text" id="app-role" placeholder="직무 (예: 백엔드, 임베디드)" maxlength="40" aria-label="직무">
-      <button class="btn" type="submit">추가</button>
-    </form>
   </section>
 </div>
 
@@ -396,8 +439,8 @@ textarea.code-in{font-family:var(--mono); font-size:12.5px; white-space:pre; ove
 (function(){
   var TAGS = {coding:'코테', project:'프로젝트', lang:'어학', apply:'지원', log:'기록'};
   var STATUSES = [
-    ['prep','준비 중',''], ['applied','지원 완료','accent'], ['doc','서류 통과','good'],
-    ['test','코테·과제','warn'], ['interview','면접','warn'], ['offer','합격','good'], ['fail','불합격','bad']
+    ['wish','관심',''], ['prep','지원 준비',''], ['applied','지원 완료','accent'], ['doc','서류 통과','good'],
+    ['test','코테·과제','warn'], ['interview','면접','warn'], ['offer','합격','good'], ['fail','불합격','bad'], ['skip','패스','']
   ];
   var CRED_KINDS = {have:['보유','good'], expired:['만료','bad'], prep:['준비 중','accent'], log:['이력',''], wip:['진행 중','warn']};
   var COLOR_KINDS = [['accent','파랑'], ['good','초록'], ['warn','주황'], ['','회색']];
@@ -647,20 +690,92 @@ textarea.code-in{font-family:var(--mono); font-size:12.5px; white-space:pre; ove
   }
 
   function stClass(v){ for (var i = 0; i < STATUSES.length; i++) if (STATUSES[i][0] === v) return STATUSES[i][2]; return ''; }
+
+  /* ---------- 지원 현황 (노션식 표) ---------- */
+  var JOB_TYPES = ['정규직', '계약직', '인턴', '전환형 인턴', '프리랜서', '기타'];
+  var EXPS = ['신입', '경력 무관', '경력'];
+  var appOpen = {}, appSort = 'added', appArmed = null;
+
+  function ddayNum(s){
+    if (!s) return null;
+    var p = String(s).split('-'); if (p.length !== 3) return null;
+    var t = new Date(); t = new Date(t.getFullYear(), t.getMonth(), t.getDate());
+    return Math.round((new Date(+p[0], +p[1] - 1, +p[2]) - t) / 86400000);
+  }
+  function ddayChip(a){
+    var n = ddayNum(a.deadline); if (n === null) return '';
+    var active = a.status === 'wish' || a.status === 'prep';
+    var cls = (!active || n < 0) ? '' : n <= 3 ? 'bad' : n <= 7 ? 'warn' : '';
+    return '<span class="chip ' + cls + '">' + (n < 0 ? '마감' : n === 0 ? 'D-day' : 'D-' + n) + '</span>';
+  }
+  function stackList(v){ return String(v || '').split(/[,\n]/).map(function(x){ return x.trim(); }).filter(Boolean); }
+  function appSafeUrl(u){ u = String(u).trim(); return /^https?:\/\//i.test(u) ? u : 'https://' + u; }
+
+  function appRow(a){
+    var id = esc(a.id), open = !!appOpen[a.id];
+    var opts = STATUSES.map(function(s){ return '<option value="' + s[0] + '"' + (s[0] === a.status ? ' selected' : '') + '>' + s[1] + '</option>'; }).join('');
+    var st = stackList(a.stack);
+    var chips = st.slice(0, 4).map(function(c){ return '<span class="chip">' + esc(c) + '</span>'; }).join('') + (st.length > 4 ? '<span class="chip">+' + (st.length - 4) + '</span>' : '');
+    var dl = a.deadline ? '<span class="mono">' + esc(String(a.deadline).slice(5).replace('-', '.')) + '</span> ' + ddayChip(a) : '<span class="muted">–</span>';
+    return '<tr class="arow' + (open ? ' open' : '') + '" data-arow="' + id + '">' +
+      '<th class="hn" scope="row"><button type="button" class="atoggle" data-app-toggle="' + id + '" aria-expanded="' + open + '"><span aria-hidden="true">' + (open ? '▾' : '▸') + '</span>' +
+      '<span class="aname"><b>' + esc(a.company || '(이름 없음)') + '</b><small>' + esc(a.role || '') + '</small></span></button></th>' +
+      '<td class="a-status"><select class="st ' + stClass(a.status) + '" data-appstatus="' + id + '" aria-label="진행 상태">' + opts + '</select></td>' +
+      '<td class="a-dl">' + dl + '</td>' +
+      '<td class="a-loc">' + esc(a.location || '') + '</td>' +
+      '<td class="a-stack">' + chips + '</td>' +
+      '<td class="a-link">' + (a.url ? '<a href="' + esc(appSafeUrl(a.url)) + '" target="_blank" rel="noopener noreferrer" aria-label="채용 공고 열기">↗</a>' : '') + '</td></tr>';
+  }
+  function aInput(a, f, label, attrs, type){
+    return '<label>' + label + '<input class="ed" type="' + (type || 'text') + '" data-af="' + f + '" data-id="' + esc(a.id) + '" value="' + esc(a[f] || '') + '" ' + (attrs || '') + '></label>';
+  }
+  function aArea(a, f, label, ph){
+    return '<label>' + label + '<textarea class="ed" rows="3" data-af="' + f + '" data-id="' + esc(a.id) + '"' + (ph ? ' placeholder="' + esc(ph) + '"' : '') + '>' + esc(a[f] || '') + '</textarea></label>';
+  }
+  function aSel(a, f, label, opts){
+    return '<label>' + label + '<select class="ed" data-af="' + f + '" data-id="' + esc(a.id) + '"><option value="">선택 안 함</option>' +
+      opts.map(function(o){ return '<option' + (o === a[f] ? ' selected' : '') + '>' + o + '</option>'; }).join('') + '</select></label>';
+  }
+  function appDetail(a){
+    var id = esc(a.id), armed = appArmed === a.id;
+    return '<tr class="adetail" data-adetail="' + id + '"><td colspan="6"><div class="adform">' +
+      '<div class="af-grid">' +
+      aInput(a, 'company', '회사', 'maxlength="60"') + aInput(a, 'role', '직무', 'maxlength="60" placeholder="예: 백엔드, 임베디드"') +
+      aInput(a, 'location', '근무지', 'maxlength="60" placeholder="예: 판교, 강남, 재택"') +
+      aInput(a, 'deadline', '마감일', '', 'date') + aInput(a, 'appliedOn', '지원일', '', 'date') +
+      aSel(a, 'jobType', '고용형태', JOB_TYPES) + aSel(a, 'exp', '경력', EXPS) +
+      aInput(a, 'pay', '연봉 · 복지', 'maxlength="100" placeholder="공고에 있으면"') + '</div>' +
+      aInput(a, 'stack', '요구 기술 스택 (쉼표로 구분)', 'maxlength="200" placeholder="Java, Spring Boot, MySQL, AWS"') +
+      '<div class="af-grid3">' + aArea(a, 'duties', '주요 업무', '') + aArea(a, 'preferred', '우대사항', '') + aArea(a, 'gap', '내가 준비할 것', '부족한 점, 미리 공부할 것') + '</div>' +
+      aInput(a, 'url', '채용 공고 링크', 'maxlength="300" placeholder="https://..."') +
+      aArea(a, 'memo', '메모', '면접 질문, 코테 후기 등') +
+      '<div class="inline"><span style="flex:1"></span><button type="button" class="del txt' + (armed ? ' armed' : '') + '" data-app-del="' + id + '">' + (armed ? '한 번 더 눌러 삭제' : '이 공고 삭제') + '</button></div>' +
+      '</div></td></tr>';
+  }
+  function appSorted(){
+    var list = state.apps.slice();
+    if (appSort === 'deadline'){
+      var k = function(a){ var n = ddayNum(a.deadline); return n === null ? 3e6 : n < 0 ? 1e6 - n : n; };
+      list.sort(function(x, y){ return k(x) - k(y); });
+    }
+    return list;
+  }
   function renderApps(){
     $('app-count').textContent = state.apps.length ? state.apps.length + '곳' : '';
-    if (!state.apps.length){ $('app-list').innerHTML = '<li class="empty">아직 등록한 지원이 없어요. 회사명과 직무를 입력해 추가해 보세요.</li>'; return; }
-    $('app-list').innerHTML = state.apps.map(function(a){
-      var opts = STATUSES.map(function(s){ return '<option value="' + s[0] + '"' + (s[0] === a.status ? ' selected' : '') + '>' + s[1] + '</option>'; }).join('');
-      var sel = '<select class="st ' + stClass(a.status) + '" data-appstatus="' + esc(a.id) + '" aria-label="진행 상태">' + opts + '</select>';
-      if (editing){
-        return '<li class="row"><div class="stack grow">' + inp('data-e="app-company" data-id="' + esc(a.id) + '" aria-label="회사명"', a.company, '회사명') +
-          inp('data-e="app-role" data-id="' + esc(a.id) + '" aria-label="직무"', a.role, '직무 (선택)') + '</div>' + sel +
-          '<button class="del" data-del-app="' + esc(a.id) + '" aria-label="삭제">×</button></li>';
-      }
-      return '<li class="row"><div class="grow"><div class="app-name">' + esc(a.company) + '</div>' +
-        (a.role ? '<div class="app-pos">' + esc(a.role) + '</div>' : '') + '</div>' + sel + '</li>';
-    }).join('');
+    $('app-sort').value = appSort;
+    if (!state.apps.length){
+      $('app-box').innerHTML = '<p class="empty">아직 정리한 공고가 없어요. 아래에 회사명을 입력해 추가하고, 줄을 눌러 요구 스택·우대사항·근무지를 채워 보세요.</p>';
+      return;
+    }
+    $('app-box').innerHTML = '<div class="ascroll"><table class="at"><thead><tr>' +
+      '<th class="hn" scope="col">회사 · 직무</th><th scope="col">상태</th><th scope="col">마감</th><th class="a-loc" scope="col">근무지</th><th class="a-stack" scope="col">요구 스택</th><th scope="col">공고</th>' +
+      '</tr></thead><tbody>' + appSorted().map(function(a){ return appRow(a) + (appOpen[a.id] ? appDetail(a) : ''); }).join('') + '</tbody></table></div>';
+  }
+  function refreshAppRow(a){
+    var tr = document.querySelector('tr[data-arow="' + a.id + '"]');
+    if (!tr) return;
+    var tmp = document.createElement('tbody'); tmp.innerHTML = appRow(a);
+    tr.parentNode.replaceChild(tmp.firstChild, tr);
   }
 
   function render(){
@@ -812,7 +927,7 @@ textarea.code-in{font-family:var(--mono); font-size:12.5px; white-space:pre; ove
   $('app-form').addEventListener('submit', function(e){
     e.preventDefault();
     var c = $('app-company').value.trim(); if (!c) return;
-    state.apps.push({id:'a' + uid(), company:c, role:$('app-role').value.trim(), status:'prep'});
+    var na = 'a' + uid(); state.apps.push({id:na, company:c, role:$('app-role').value.trim(), status:'wish'}); appOpen[na] = true;
     $('app-company').value = ''; $('app-role').value = ''; changed();
   });
 
@@ -1005,6 +1120,7 @@ textarea.code-in{font-family:var(--mono); font-size:12.5px; white-space:pre; ove
     if (!el) return;
     var d = el.dataset;
     if (logArmed && d.logDel !== logArmed){ logArmed = null; renderLogs(); }
+    if (appArmed && d.appDel !== appArmed){ appArmed = null; renderApps(); }
     if (el.id === 'log-new'){ openLogForm(null); return; }
     if (d.logCancel){ closeLogForm(); return; }
     if (d.logColor !== undefined){ logColor = d.logColor; renderLogs(); return; }
@@ -1033,6 +1149,11 @@ textarea.code-in{font-family:var(--mono); font-size:12.5px; white-space:pre; ove
       logs = logs.filter(function(x){ return x.id !== d.logDel; }); renderLogs(); setStatus('saved');
       return;
     }
+    if (d.appToggle){ appOpen[d.appToggle] = !appOpen[d.appToggle]; renderApps(); return; }
+    if (d.appDel){
+      if (appArmed !== d.appDel){ appArmed = d.appDel; renderApps(); return; }
+      appArmed = null; state.apps = state.apps.filter(function(x){ return x.id !== d.appDel; }); delete appOpen[d.appDel]; changed(); return;
+    }
     if (d.hview){ habitView = d.hview; renderHabits(); return; }
     if (d.hnav !== undefined){
       var n = +d.hnav;
@@ -1051,6 +1172,13 @@ textarea.code-in{font-family:var(--mono); font-size:12.5px; white-space:pre; ove
   });
   document.addEventListener('change', function(e){
     var t = e.target;
+    var af = t.dataset && t.dataset.af;
+    if (af){
+      var ap = state.apps.filter(function(x){ return x.id === t.dataset.id; })[0];
+      if (ap){ ap[af] = t.value; commit(); if (['company','role','location','deadline','stack','url'].indexOf(af) >= 0) refreshAppRow(ap); }
+      return;
+    }
+    if (t.id === 'app-sort'){ appSort = t.value; renderApps(); return; }
     if (t.dataset && t.dataset.he === 'name'){
       var h = state.habits.filter(function(x){ return x.id === t.dataset.id; })[0];
       if (h){ h.name = t.value; commit(); }
@@ -1113,7 +1241,7 @@ textarea.code-in{font-family:var(--mono); font-size:12.5px; white-space:pre; ove
   });
   document.addEventListener('visibilitychange', function(){
     if (document.visibilityState !== 'visible' || !userId || timer || saving) return;
-    var ae = document.activeElement; if (ae && ae.dataset && ae.dataset.e) return;
+    var ae = document.activeElement; if (ae && ae.dataset && (ae.dataset.e || ae.dataset.af || ae.dataset.he)) return;
     load().then(function(ok){ if (ok) render(); return loadLogs(); }).then(renderLogs);
   });
 
