@@ -16,6 +16,8 @@
   --good:#1B8553; --good-soft:#E1F3EA; --on-good:#FFFFFF;
   --warn:#9A6208; --warn-soft:#FBF0DA;
   --bad:#B3362B; --bad-soft:#FAE5E2;
+  --g1:#BFE6CE; --g2:#6FC091; --g3:#1B8553;
+  --c-red:#D24545; --c-yellow:#E0A100; --c-blue:#2F6FED;
   --font:'IBM Plex Sans KR','Apple SD Gothic Neo','Malgun Gothic',system-ui,sans-serif;
   --mono:'IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
 }
@@ -27,6 +29,8 @@
     --good:#4FC48A; --good-soft:#14301F; --on-good:#0E141A;
     --warn:#E3A94A; --warn-soft:#33260E;
     --bad:#F08377; --bad-soft:#38191A;
+    --g1:#1E4A33; --g2:#2E7D52; --g3:#4FC48A;
+    --c-red:#F07A7A; --c-yellow:#F2C94C; --c-blue:#6F9BFF;
     color-scheme:dark;
   }
 }
@@ -37,6 +41,8 @@
   --good:#4FC48A; --good-soft:#14301F; --on-good:#0E141A;
   --warn:#E3A94A; --warn-soft:#33260E;
   --bad:#F08377; --bad-soft:#38191A;
+    --g1:#1E4A33; --g2:#2E7D52; --g3:#4FC48A;
+    --c-red:#F07A7A; --c-yellow:#F2C94C; --c-blue:#6F9BFF;
   color-scheme:dark;
 }
 *{box-sizing:border-box}
@@ -186,6 +192,75 @@ select.st.accent{background:var(--accent-soft); color:var(--accent)}
 .auth{max-width:360px; margin:40px auto 0; display:flex; flex-direction:column; gap:12px}
 .auth h1{font-size:22px; font-weight:700}
 .auth .hint{margin-bottom:0}
+
+/* grass */
+.grass-scroll{overflow-x:auto; padding-bottom:4px}
+.grass{display:flex; gap:3px; width:max-content}
+.gw{display:flex; flex-direction:column; gap:3px}
+.gm{display:block; height:14px; width:12px; font-family:var(--mono); font-size:10px; line-height:14px; color:var(--muted); white-space:nowrap; overflow:visible}
+.gl .gm{width:20px}
+.gl span.gd{display:block; width:20px; height:12px; font-size:10px; line-height:12px; color:var(--muted)}
+.gc{display:block; width:12px; height:12px; border-radius:2px; background:var(--surface2); border:1px solid var(--line)}
+.gc.l1{background:var(--g1); border-color:transparent}
+.gc.l2{background:var(--g2); border-color:transparent}
+.gc.l3{background:var(--g3); border-color:transparent}
+.gc.none{background:transparent; border-color:transparent}
+.legend{display:flex; align-items:center; gap:4px; font-size:11px; color:var(--muted); margin-top:10px; justify-content:flex-end}
+.legend .gc{display:inline-block}
+
+/* habits */
+.habit-tools{display:flex; gap:6px; align-items:center; flex-wrap:wrap; justify-content:flex-end}
+.seg{display:inline-flex; border:1px solid var(--line); border-radius:5px; overflow:hidden}
+.seg button{border:0; background:var(--surface); padding:3px 12px; cursor:pointer; font-size:12px}
+.seg button.on{background:var(--accent); color:var(--on-accent)}
+.hlabel{min-width:96px; text-align:center}
+.hscroll{overflow-x:auto}
+.ht{border-collapse:separate; border-spacing:0; width:100%}
+.ht th,.ht td{padding:3px; text-align:center; font-weight:400}
+.ht .hn{position:sticky; left:0; background:var(--surface); text-align:left; min-width:120px; padding-right:10px; font-weight:500; z-index:1}
+.ht .hn .inline{min-width:140px}
+.ht thead th{font-family:var(--mono); font-size:11px; color:var(--muted)}
+.ht thead th b{display:block; font-weight:500; color:var(--ink)}
+.ht .hd.today b{color:var(--accent)}
+.ht .hr{font-family:var(--mono); font-size:11px; color:var(--muted); white-space:nowrap; padding-left:8px}
+.hc{width:28px; height:28px; border-radius:5px; border:1px solid var(--line); background:var(--surface2); cursor:pointer; padding:0}
+.hc:hover{border-color:var(--accent)}
+.hc.on{background:var(--good); border-color:var(--good)}
+.hc.fut{opacity:.35; cursor:default}
+.ht.month .hc{width:22px; height:22px}
+
+/* coding log */
+.dot{display:inline-block; width:14px; height:14px; border-radius:50%; flex:none; background:var(--dc, transparent)}
+.dot.red{--dc:var(--c-red)} .dot.yellow{--dc:var(--c-yellow)} .dot.blue{--dc:var(--c-blue)}
+.dot.none{border:1.5px dashed var(--muted)}
+.log-filter{display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-bottom:8px}
+#log-chips{display:flex; gap:6px; flex-wrap:wrap}
+.log-filter input{flex:1 1 160px; max-width:260px; width:auto}
+.chip-btn{display:inline-flex; align-items:center; gap:6px; border:1px solid var(--line); background:var(--surface); border-radius:999px; padding:3px 10px; cursor:pointer; font-size:12px}
+.chip-btn.on{border-color:var(--accent); background:var(--accent-soft); color:var(--accent)}
+.log{border-top:1px solid var(--line)}
+.log:first-child{border-top:0}
+.log-head{display:flex; align-items:center; gap:10px; width:100%; text-align:left; border:0; background:none; padding:9px 0; cursor:pointer; min-width:0}
+.log-title{flex:1; min-width:0; overflow-wrap:anywhere; font-weight:500}
+.log-date{font-family:var(--mono); font-size:12px; color:var(--muted); white-space:nowrap}
+.log-body{padding:2px 0 14px 24px; display:flex; flex-direction:column; gap:10px; min-width:0}
+.code-wrap{display:flex; flex-direction:column; gap:6px; align-items:flex-start; min-width:0}
+.code-wrap pre{align-self:stretch}
+pre.code{margin:0; background:var(--surface2); border:1px solid var(--line); border-radius:5px; padding:12px; overflow-x:auto; font-family:var(--mono); font-size:12.5px; line-height:1.6; white-space:pre; tab-size:4}
+.memo{font-size:13px; color:var(--muted); overflow-wrap:anywhere}
+.logform{display:flex; flex-direction:column; gap:10px; background:var(--surface2); border:1px solid var(--line); border-radius:6px; padding:14px; margin-bottom:12px}
+.logform label{display:flex; flex-direction:column; gap:4px; font-size:12px; color:var(--muted)}
+.logform .ed{background:var(--surface)}
+.lf-row{display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); gap:10px}
+.feel{display:flex; gap:14px; flex-wrap:wrap; align-items:center}
+.feel .fl{font-size:12px; color:var(--muted); width:100%}
+.logform .feel-opt{display:inline-flex; flex-direction:row; align-items:center; gap:6px; font-size:13px; color:var(--ink); cursor:pointer; position:relative}
+.feel-opt input{position:absolute; opacity:0; width:1px; height:1px}
+.feel-opt .dot{width:20px; height:20px}
+.feel-opt input:checked + .dot{outline:2px solid var(--ink); outline-offset:2px}
+.feel-opt input:focus-visible + .dot{outline:2px solid var(--accent); outline-offset:2px}
+textarea.code-in{font-family:var(--mono); font-size:12.5px; white-space:pre; overflow-x:auto}
+.ext{font-size:13px}
 @media (max-width: 760px){
   .cols{grid-template-columns:minmax(0,1fr)}
   .stats{grid-template-columns:repeat(2, minmax(0,1fr))}
@@ -270,12 +345,40 @@ select.st.accent{background:var(--accent-soft); color:var(--accent)}
     </div>
   </div>
 
+  <section class="panel" aria-labelledby="h-grass">
+    <div class="panel-head"><h2 id="h-grass">잔디</h2><span class="count" id="grass-meta"></span></div>
+    <p class="hint">할 일에서 <b>코테</b>나 <b>프로젝트</b> 분류 항목을 체크한 날만 채워져요.</p>
+    <div class="grass-scroll" id="grass-scroll"><div class="grass" id="grass"></div></div>
+    <div class="legend">적음 <i class="gc"></i><i class="gc l1"></i><i class="gc l2"></i><i class="gc l3"></i> 많음</div>
+  </section>
+
+  <section class="panel" aria-labelledby="h-habit">
+    <div class="panel-head"><h2 id="h-habit">습관 트래커</h2><div class="habit-tools" id="habit-tools"></div></div>
+    <p class="hint">기본 습관은 예시예요. 칸을 누르면 그날 한 걸로 표시돼요.</p>
+    <div class="hscroll" id="habit-box"></div>
+    <form class="add" id="habit-form" autocomplete="off">
+      <input type="text" id="habit-input" placeholder="습관 추가 (예: 운동)" maxlength="30" aria-label="습관 추가">
+      <button class="btn" type="submit">추가</button>
+    </form>
+  </section>
+
   <section aria-labelledby="h-proj">
     <div class="panel-head">
       <h2 id="h-proj" style="font-size:15px;font-weight:600">포트폴리오 프로젝트</h2>
       <div class="proj-tools"><span class="count" id="proj-count"></span><span id="proj-tools"></span></div>
     </div>
     <div class="proj-grid" id="proj-grid"></div>
+  </section>
+
+  <section class="panel" aria-labelledby="h-log">
+    <div class="panel-head">
+      <h2 id="h-log">코테 기록</h2>
+      <div class="proj-tools"><span class="count" id="log-count"></span><button class="btn sm" type="button" id="log-new">+ 문제 기록</button></div>
+    </div>
+    <div id="log-form-box"></div>
+    <div class="log-filter"><div id="log-chips"></div><input class="ed" type="search" id="log-q" placeholder="제목 · 레벨 검색" aria-label="코테 기록 검색"></div>
+    <ul class="list" id="log-list"></ul>
+    <datalist id="log-levels"></datalist>
   </section>
 
   <section class="panel" aria-labelledby="h-app">
@@ -326,6 +429,9 @@ select.st.accent{background:var(--accent-soft); color:var(--accent)}
     {id:'c5', name:'오픽', sub:'토익 재응시 대신 오픽으로 어학성적 확보', kind:'prep'},
     {id:'c6', name:'코딩테스트', sub:'카카오 1차 합격, 2차 탈락 (작년 말) · 백준 골드5까지 안정적', kind:'log'}
   ];
+  var DEFAULT_HABITS = [
+    {id:'h1', name:'오픽 말하기 연습'}, {id:'h2', name:'운동'}, {id:'h3', name:'일찍 자기'}
+  ];
   var PROJECTS_DEF = [
     {id:'bl', name:'book-log', repo:'Eunseo-ee/book-log', label:'진행 중', color:'accent',
      meta:'팀 프로젝트 · 외부 API 통합, 하이라이트, 통계/리캡, 캐싱, PM 겸임\n프론트 Next.js · React · TypeScript · Tailwind',
@@ -365,7 +471,8 @@ select.st.accent{background:var(--accent-soft); color:var(--accent)}
 
   var state = {
     head:clone(DEFAULT_HEAD), checks:{}, routine:clone(DEFAULT_ROUTINE), goals:clone(DEFAULT_GOALS),
-    creds:clone(DEFAULT_CREDS), projects:defaultProjects(), apps:[]
+    creds:clone(DEFAULT_CREDS), projects:defaultProjects(), apps:[],
+    habits:clone(DEFAULT_HABITS), hchecks:{}, grass:{}
   };
   var todayKey = key(new Date());
   var editing = false, pendingDel = null, focusId = null;
@@ -561,6 +668,7 @@ select.st.accent{background:var(--accent-soft); color:var(--accent)}
     var tg = $('edit-toggle'); tg.textContent = editing ? '편집 끝내기' : '편집'; tg.classList.toggle('on', editing);
     $('routine-form').hidden = false;
     renderHead(); renderStats(); renderToday(); renderWeek(); renderGoals(); renderCreds(); renderProjects(); renderApps();
+    renderGrass(); renderHabits(); renderLogs();
     if (focusId){
       var el = document.querySelector('[data-focus-key="' + focusId + '"], [data-i="' + focusId + '"], [data-g="' + focusId + '"][data-e="g-title"], [data-p="' + focusId + '"][data-e="p-name"], [data-id="' + focusId + '"][data-e]');
       if (el && el.focus) el.focus();
@@ -573,8 +681,8 @@ select.st.accent{background:var(--accent-soft); color:var(--accent)}
   var STATUS_TEXT = {saved:'저장됨', saving:'저장 중…', local:'이 브라우저에만 저장돼요', readonly:'읽기 전용이라 저장할 수 없어요', error:'저장하지 못했어요. 잠시 후 다시 시도해 주세요'};
   function setStatus(s){ var el = $('save'); el.dataset.s = s; el.textContent = STATUS_TEXT[s] || ''; }
 
-  function applyRemote(data){
-    ['head','checks','routine','goals','creds','apps'].forEach(function(k){ if (data[k] !== undefined) state[k] = clone(data[k]); });
+  function applyRemoteBase(data){
+    ['head','checks','routine','goals','creds','apps','habits','hchecks','grass'].forEach(function(k){ if (data[k] !== undefined) state[k] = clone(data[k]); });
     if (data.projects !== undefined){ state.projects = clone(data.projects); }
     else if (data.ms){
       state.projects = defaultProjects();
@@ -583,9 +691,10 @@ select.st.accent{background:var(--accent-soft); color:var(--accent)}
       }); }); });
     }
   }
+  function applyRemote(data){ applyRemoteBase(data); backfillGrass(); }
   function prune(){
-    var cut = new Date(); cut.setDate(cut.getDate() - 120); var ck = key(cut);
-    Object.keys(state.checks).forEach(function(k){ if (k < ck) delete state.checks[k]; });
+    var cut = new Date(); cut.setDate(cut.getDate() - 400); var ck = key(cut);
+    ['checks','hchecks','grass'].forEach(function(f){ Object.keys(state[f]).forEach(function(k){ if (k < ck) delete state[f][k]; }); });
   }
   function lsRead(){ try { var s = localStorage.getItem('job-dashboard'); return s ? JSON.parse(s) : null; } catch(e){ return null; } }
   function lsWrite(){ try { localStorage.setItem('job-dashboard', JSON.stringify(state)); } catch(e){} }
@@ -622,7 +731,7 @@ select.st.accent{background:var(--accent-soft); color:var(--accent)}
     if (d.check){
       var arr = (state.checks[todayKey] || []).filter(function(i){ return i !== d.check; });
       if (t.checked) arr.push(d.check);
-      state.checks[todayKey] = arr; changed();
+      state.checks[todayKey] = arr; setGrass(todayKey); changed();
     } else if (d.ckI){
       var it = I(G(P(d.ckP), d.ckG), d.ckI); if (it){ it.done = t.checked; changed(); }
     } else if (d.goal){
@@ -707,6 +816,254 @@ select.st.accent{background:var(--accent-soft); color:var(--accent)}
     $('app-company').value = ''; $('app-role').value = ''; changed();
   });
 
+  /* ---------- grass (잔디) ---------- */
+  function addDays(d, n){ var x = new Date(d.getFullYear(), d.getMonth(), d.getDate()); x.setDate(x.getDate() + n); return x; }
+  function mondayOf(d){ return addDays(d, -((d.getDay() + 6) % 7)); }
+  function grassFor(k){
+    var ids = {};
+    state.routine.forEach(function(r){ if (r.tag === 'coding' || r.tag === 'project') ids[r.id] = 1; });
+    return (state.checks[k] || []).filter(function(i){ return ids[i]; }).length;
+  }
+  function setGrass(k){ var n = grassFor(k); if (n) state.grass[k] = n; else delete state.grass[k]; }
+  function backfillGrass(){
+    Object.keys(state.checks).forEach(function(k){
+      if (state.grass[k] === undefined){ var n = grassFor(k); if (n) state.grass[k] = n; }
+    });
+  }
+  function renderGrass(){
+    var WEEKS = 26, today = new Date(), start = addDays(mondayOf(today), -7 * (WEEKS - 1));
+    var cols = '<div class="gw gl"><span class="gm"></span><span class="gd">월</span><span class="gd"></span><span class="gd">수</span><span class="gd"></span><span class="gd">금</span><span class="gd"></span><span class="gd"></span></div>';
+    var total = 0, lastMonth = -1;
+    for (var w = 0; w < WEEKS; w++){
+      var wd = addDays(start, 7 * w), m = wd.getMonth(), label = '';
+      if (m !== lastMonth){ label = (m + 1) + '월'; lastMonth = m; }
+      var cells = '';
+      for (var i = 0; i < 7; i++){
+        var d = addDays(wd, i);
+        if (d > today){ cells += '<i class="gc none"></i>'; continue; }
+        var k = key(d), n = state.grass[k] || 0;
+        if (n) total++;
+        cells += '<i class="gc l' + (n >= 3 ? 3 : n) + '" title="' + k + ' · ' + (n ? n + '개 완료' : '기록 없음') + '"></i>';
+      }
+      cols += '<div class="gw"><span class="gm">' + label + '</span>' + cells + '</div>';
+    }
+    $('grass').innerHTML = cols;
+    var cur = 0, d0 = new Date();
+    if (!(state.grass[key(d0)] > 0)) d0 = addDays(d0, -1);
+    while (state.grass[key(d0)] > 0 && cur < 400){ cur++; d0 = addDays(d0, -1); }
+    $('grass-meta').textContent = '최근 26주 ' + total + '일 · 현재 연속 ' + cur + '일';
+    var sc = $('grass-scroll'); sc.scrollLeft = sc.scrollWidth;
+  }
+
+  /* ---------- habit tracker ---------- */
+  var habitView = 'week', habitAnchor = new Date();
+  function fmtMD(d){ return (d.getMonth() + 1) + '.' + d.getDate(); }
+  function habitDays(){
+    var out = [], a = habitAnchor, i;
+    if (habitView === 'week'){ var m = mondayOf(a); for (i = 0; i < 7; i++) out.push(addDays(m, i)); }
+    else { var n = new Date(a.getFullYear(), a.getMonth() + 1, 0).getDate(); for (i = 1; i <= n; i++) out.push(new Date(a.getFullYear(), a.getMonth(), i)); }
+    return out;
+  }
+  function renderHabits(){
+    var days = habitDays(), first = days[0], last = days[days.length - 1], tk = key(new Date());
+    var label = habitView === 'week' ? first.getFullYear() + '.' + fmtMD(first) + ' – ' + fmtMD(last) : first.getFullYear() + '년 ' + (first.getMonth() + 1) + '월';
+    $('habit-tools').innerHTML =
+      '<div class="seg"><button type="button" class="' + (habitView === 'week' ? 'on' : '') + '" data-hview="week">주</button>' +
+      '<button type="button" class="' + (habitView === 'month' ? 'on' : '') + '" data-hview="month">월</button></div>' +
+      '<button type="button" class="btn ghost sm" data-hnav="-1" aria-label="이전">‹</button><span class="count hlabel">' + label + '</span>' +
+      '<button type="button" class="btn ghost sm" data-hnav="1" aria-label="다음">›</button><button type="button" class="btn ghost sm" data-hnav="0">오늘</button>';
+    if (!state.habits.length){ $('habit-box').innerHTML = '<p class="empty">습관을 추가해 보세요.</p>'; return; }
+    var elapsed = days.filter(function(d){ return key(d) <= tk; }).length;
+    var head = '<th class="hn" scope="col">습관</th>' + days.map(function(d){
+      return '<th class="hd' + (key(d) === tk ? ' today' : '') + '" scope="col"><span>' + DOW[d.getDay()] + '</span><b>' + d.getDate() + '</b></th>';
+    }).join('') + '<th class="hr" scope="col">달성</th>';
+    var rows = state.habits.map(function(h){
+      var done = 0;
+      var cells = days.map(function(d){
+        var k = key(d), on = (state.hchecks[k] || []).indexOf(h.id) >= 0, fut = k > tk;
+        if (on) done++;
+        return '<td><button type="button" class="hc' + (on ? ' on' : '') + (fut ? ' fut' : '') + '" data-hc="' + esc(h.id) + '" data-date="' + k + '" aria-pressed="' + on + '" aria-label="' + esc(h.name) + ' ' + k + '"' + (fut ? ' disabled' : '') + '></button></td>';
+      }).join('');
+      var name = editing
+        ? '<div class="inline">' + inp('data-he="name" data-id="' + esc(h.id) + '" aria-label="습관 이름"', h.name, '', 'flex') + '<button class="del" data-del-habit="' + esc(h.id) + '" aria-label="삭제">×</button></div>'
+        : esc(h.name);
+      return '<tr><th class="hn" scope="row">' + name + '</th>' + cells + '<td class="hr">' + (elapsed ? done + '/' + elapsed : '–') + '</td></tr>';
+    }).join('');
+    $('habit-box').innerHTML = '<table class="ht ' + habitView + '"><thead><tr>' + head + '</tr></thead><tbody>' + rows + '</tbody></table>';
+  }
+
+  /* ---------- coding log (코테 기록) ---------- */
+  var SITES = ['프로그래머스', '백준', '기타'];
+  var FEEL = {red:'어려웠어요', yellow:'보통이었어요', blue:'쉬웠어요'};
+  var FEEL_NAME = {red:'빨강', yellow:'노랑', blue:'파랑'};
+  var logs = [], logsErr = null, logColor = '', logQuery = '', logOpen = {}, logArmed = null;
+
+  (function(){
+    var lv = ['Lv.0','Lv.1','Lv.2','Lv.3','Lv.4','Lv.5'];
+    ['브론즈','실버','골드','플래티넘','다이아'].forEach(function(t){ for (var i = 5; i >= 1; i--) lv.push(t + i); });
+    $('log-levels').innerHTML = lv.map(function(x){ return '<option value="' + x + '"></option>'; }).join('');
+  })();
+
+  async function loadLogs(){
+    if (!sb || !userId) return;
+    var r = await sb.from('coding_log').select('*').order('solved_on', {ascending:false}).order('created_at', {ascending:false});
+    if (r.error){ logsErr = r.error.message || 'error'; if (window.console) console.error(r.error); logs = []; }
+    else { logsErr = null; logs = r.data || []; }
+  }
+  function sortLogs(){
+    logs.sort(function(a, b){
+      if (a.solved_on !== b.solved_on) return a.solved_on < b.solved_on ? 1 : -1;
+      return (a.created_at || '') < (b.created_at || '') ? 1 : -1;
+    });
+  }
+  function safeUrl(u){ u = String(u).trim(); return /^https?:\/\//i.test(u) ? u : 'https://' + u; }
+  function dotHtml(f){
+    return f ? '<span class="dot ' + f + '" role="img" aria-label="' + FEEL[f] + '" title="' + FEEL_NAME[f] + ' · ' + FEEL[f] + '"></span>' : '<span class="dot none" aria-hidden="true"></span>';
+  }
+
+  function renderLogs(){
+    $('log-count').textContent = logs.length ? logs.length + '개' : '';
+    if (logsErr){
+      $('log-chips').innerHTML = '';
+      $('log-list').innerHTML = '<li class="empty">코테 기록을 불러오지 못했어요. Supabase에서 <b>setup-coding.sql</b>을 실행했는지 확인해 주세요.</li>';
+      $('log-new').disabled = true;
+      return;
+    }
+    $('log-new').disabled = false;
+    $('log-chips').innerHTML = [['', '전체'], ['red', '빨강'], ['yellow', '노랑'], ['blue', '파랑']].map(function(c){
+      return '<button type="button" class="chip-btn' + (logColor === c[0] ? ' on' : '') + '" data-log-color="' + c[0] + '">' + (c[0] ? '<span class="dot ' + c[0] + '"></span>' : '') + c[1] + '</button>';
+    }).join('');
+    var q = logQuery.trim().toLowerCase();
+    var rows = logs.filter(function(l){
+      return (!logColor || l.feel === logColor) && (!q || (l.title + ' ' + l.level + ' ' + l.site).toLowerCase().indexOf(q) >= 0);
+    });
+    if (!rows.length){
+      $('log-list').innerHTML = '<li class="empty">' + (logs.length ? '조건에 맞는 기록이 없어요.' : '아직 기록이 없어요. 위의 “+ 문제 기록”으로 오늘 푼 문제를 남겨 보세요.') + '</li>';
+      return;
+    }
+    $('log-list').innerHTML = rows.map(function(l){
+      var open = !!logOpen[l.id], armed = logArmed === l.id, id = esc(l.id);
+      var body = '';
+      if (open){
+        body = '<div class="log-body">' +
+          (l.url ? '<a class="ext" href="' + esc(safeUrl(l.url)) + '" target="_blank" rel="noopener noreferrer">문제 링크 열기 ↗</a>' : '') +
+          (l.code ? '<div class="code-wrap"><button type="button" class="btn ghost sm" data-log-copy="' + id + '">코드 복사</button><pre class="code"><code>' + esc(l.code) + '</code></pre></div>' : '<p class="empty">저장된 답안이 없어요.</p>') +
+          (l.memo ? '<p class="memo">' + esc(l.memo).replace(/\n/g, '<br>') + '</p>' : '') +
+          '<div class="inline"><button type="button" class="btn ghost sm" data-log-edit="' + id + '">수정</button>' +
+          '<button type="button" class="del txt' + (armed ? ' armed' : '') + '" data-log-del="' + id + '">' + (armed ? '한 번 더 눌러 삭제' : '삭제') + '</button></div></div>';
+      }
+      return '<li class="log"><button type="button" class="log-head" data-log-toggle="' + id + '" aria-expanded="' + open + '">' +
+        dotHtml(l.feel) + '<span class="log-date">' + esc(l.solved_on) + '</span>' +
+        '<span class="chip">' + esc(l.site) + '</span>' + (l.level ? '<span class="chip">' + esc(l.level) + '</span>' : '') +
+        '<span class="log-title">' + esc(l.title) + '</span><span aria-hidden="true">' + (open ? '▴' : '▾') + '</span></button>' + body + '</li>';
+    }).join('');
+  }
+
+  function closeLogForm(){ $('log-form-box').innerHTML = ''; }
+  function openLogForm(l){
+    var v = l || {solved_on:key(new Date()), title:'', url:'', site:SITES[0], level:'', feel:null, code:'', memo:''};
+    var siteOpts = SITES.map(function(s){ return '<option' + (s === v.site ? ' selected' : '') + '>' + s + '</option>'; }).join('');
+    var feelOpts = ['red', 'yellow', 'blue'].map(function(f){
+      return '<label class="feel-opt"><input type="radio" name="feel" value="' + f + '"' + (v.feel === f ? ' checked' : '') + '><span class="dot ' + f + '"></span>' + FEEL[f] + '</label>';
+    }).join('') + '<label class="feel-opt"><input type="radio" name="feel" value=""' + (!v.feel ? ' checked' : '') + '><span class="dot none"></span>선택 안 함</label>';
+    $('log-form-box').innerHTML =
+      '<form id="log-form" class="logform" data-id="' + (l ? esc(l.id) : '') + '" autocomplete="off">' +
+      '<div class="lf-row"><label>풀이 날짜<input class="ed" type="date" name="solved_on" value="' + esc(v.solved_on) + '" required></label>' +
+      '<label>사이트<select class="ed" name="site">' + siteOpts + '</select></label>' +
+      '<label>레벨<input class="ed" type="text" name="level" list="log-levels" placeholder="예: Lv.2, 골드5" maxlength="20" value="' + esc(v.level) + '"></label></div>' +
+      '<label>문제 이름<input class="ed" type="text" name="title" maxlength="100" required value="' + esc(v.title) + '"></label>' +
+      '<label>문제 링크<input class="ed" type="text" name="url" placeholder="https://..." maxlength="300" value="' + esc(v.url) + '"></label>' +
+      '<div class="feel" role="radiogroup" aria-label="얼마나 어렵게 풀었나요?"><span class="fl">얼마나 어렵게 풀었나요?</span>' + feelOpts + '</div>' +
+      '<label>내 답안<textarea class="ed code-in" name="code" rows="10" spellcheck="false" placeholder="코드를 붙여넣어요">' + esc(v.code) + '</textarea></label>' +
+      '<label>메모<textarea class="ed" name="memo" rows="3" placeholder="막혔던 점, 다음에 볼 포인트">' + esc(v.memo) + '</textarea></label>' +
+      '<div class="inline"><button class="btn" type="submit">저장</button><button class="btn ghost" type="button" data-log-cancel="1">취소</button></div></form>';
+    var t = document.querySelector('#log-form [name=title]'); if (t) t.focus();
+  }
+
+  document.addEventListener('submit', async function(e){
+    if (e.target.id !== 'log-form') return;
+    e.preventDefault();
+    if (!sb || !userId) return;
+    var f = e.target, fd = new FormData(f), id = f.dataset.id;
+    var row = {
+      solved_on: fd.get('solved_on'), site: fd.get('site'), level: String(fd.get('level') || '').trim(),
+      title: String(fd.get('title') || '').trim(), url: String(fd.get('url') || '').trim(),
+      feel: fd.get('feel') || null, code: fd.get('code') || '', memo: fd.get('memo') || '', updated_at: new Date().toISOString()
+    };
+    if (!row.title) return;
+    setStatus('saving');
+    var r = id
+      ? await sb.from('coding_log').update(row).eq('id', id).select().single()
+      : await sb.from('coding_log').insert(Object.assign({user_id: userId}, row)).select().single();
+    if (r.error){ if (window.console) console.error(r.error); setStatus('error'); return; }
+    if (id) logs = logs.map(function(l){ return l.id === id ? r.data : l; }); else logs.push(r.data);
+    sortLogs(); logOpen[r.data.id] = true; closeLogForm(); renderLogs(); setStatus('saved');
+  });
+
+  document.addEventListener('click', async function(e){
+    var el = e.target.closest ? e.target.closest('button') : null;
+    if (!el) return;
+    var d = el.dataset;
+    if (logArmed && d.logDel !== logArmed){ logArmed = null; renderLogs(); }
+    if (el.id === 'log-new'){ openLogForm(null); return; }
+    if (d.logCancel){ closeLogForm(); return; }
+    if (d.logColor !== undefined){ logColor = d.logColor; renderLogs(); return; }
+    if (d.logToggle){ logOpen[d.logToggle] = !logOpen[d.logToggle]; renderLogs(); return; }
+    if (d.logEdit){
+      var l = logs.filter(function(x){ return x.id === d.logEdit; })[0];
+      if (l){ openLogForm(l); $('log-form-box').scrollIntoView({block:'nearest'}); }
+      return;
+    }
+    if (d.logCopy){
+      var c = logs.filter(function(x){ return x.id === d.logCopy; })[0];
+      if (!c) return;
+      var done = function(){ el.textContent = '복사됨'; setTimeout(function(){ el.textContent = '코드 복사'; }, 1500); };
+      try { await navigator.clipboard.writeText(c.code); done(); }
+      catch(err){
+        var ta = document.createElement('textarea'); ta.value = c.code; document.body.appendChild(ta); ta.select();
+        try { document.execCommand('copy'); done(); } catch(e2){} document.body.removeChild(ta);
+      }
+      return;
+    }
+    if (d.logDel){
+      if (logArmed !== d.logDel){ logArmed = d.logDel; renderLogs(); return; }
+      logArmed = null; setStatus('saving');
+      var r = await sb.from('coding_log').delete().eq('id', d.logDel);
+      if (r.error){ setStatus('error'); renderLogs(); return; }
+      logs = logs.filter(function(x){ return x.id !== d.logDel; }); renderLogs(); setStatus('saved');
+      return;
+    }
+    if (d.hview){ habitView = d.hview; renderHabits(); return; }
+    if (d.hnav !== undefined){
+      var n = +d.hnav;
+      if (n === 0) habitAnchor = new Date();
+      else if (habitView === 'week') habitAnchor = addDays(habitAnchor, 7 * n);
+      else habitAnchor = new Date(habitAnchor.getFullYear(), habitAnchor.getMonth() + n, 1);
+      renderHabits(); return;
+    }
+    if (d.hc){
+      var arr = state.hchecks[d.date] || [];
+      arr = arr.indexOf(d.hc) >= 0 ? arr.filter(function(x){ return x !== d.hc; }) : arr.concat(d.hc);
+      if (arr.length) state.hchecks[d.date] = arr; else delete state.hchecks[d.date];
+      changed(); return;
+    }
+    if (d.delHabit){ state.habits = state.habits.filter(function(h){ return h.id !== d.delHabit; }); changed(); return; }
+  });
+  document.addEventListener('change', function(e){
+    var t = e.target;
+    if (t.dataset && t.dataset.he === 'name'){
+      var h = state.habits.filter(function(x){ return x.id === t.dataset.id; })[0];
+      if (h){ h.name = t.value; commit(); }
+    }
+  });
+  $('log-q').addEventListener('input', function(e){ logQuery = e.target.value; renderLogs(); });
+  $('habit-form').addEventListener('submit', function(e){
+    e.preventDefault();
+    var v = $('habit-input').value.trim(); if (!v) return;
+    state.habits.push({id:'h' + uid(), name:v});
+    $('habit-input').value = ''; changed();
+  });
+
   /* ---------- boot ---------- */
   var now = new Date();
   $('date').textContent = now.getFullYear() + '.' + pad(now.getMonth() + 1) + '.' + pad(now.getDate()) + ' (' + DOW[now.getDay()] + ')';
@@ -720,6 +1077,7 @@ select.st.accent{background:var(--accent-soft); color:var(--accent)}
   function resetState(){
     state.head = clone(DEFAULT_HEAD); state.checks = {}; state.routine = clone(DEFAULT_ROUTINE); state.goals = clone(DEFAULT_GOALS);
     state.creds = clone(DEFAULT_CREDS); state.projects = defaultProjects(); state.apps = [];
+    state.habits = clone(DEFAULT_HABITS); state.hchecks = {}; state.grass = {};
   }
   async function load(){
     var res = await sb.from('dashboard_state').select('data').eq('user_id', userId).maybeSingle();
@@ -733,10 +1091,11 @@ select.st.accent{background:var(--accent-soft); color:var(--accent)}
     loadedFor = session.user.id; userId = session.user.id;
     show('app'); setStatus('saving');
     var ok = await load();
+    await loadLogs();
     render();
     if (ok && !timer && !saving) setStatus('saved');
   }
-  function leave(){ loadedFor = null; userId = null; editing = false; resetState(); render(); show('auth'); }
+  function leave(){ loadedFor = null; userId = null; editing = false; resetState(); logs = []; logOpen = {}; closeLogForm(); render(); show('auth'); }
 
   function authMsg(t){ $('auth-msg').textContent = t || ''; }
   $('login-form').addEventListener('submit', async function(e){
@@ -755,7 +1114,7 @@ select.st.accent{background:var(--accent-soft); color:var(--accent)}
   document.addEventListener('visibilitychange', function(){
     if (document.visibilityState !== 'visible' || !userId || timer || saving) return;
     var ae = document.activeElement; if (ae && ae.dataset && ae.dataset.e) return;
-    load().then(function(ok){ if (ok) render(); });
+    load().then(function(ok){ if (ok) render(); return loadLogs(); }).then(renderLogs);
   });
 
   if (!window.supabase){
