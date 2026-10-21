@@ -1,0 +1,59 @@
+/* 테마 토큰: 라이트/다크 모두 여기서 관리. 위젯은 색을 직접 쓰지 말고 이 변수만 쓴다. */
+:root {
+  --bg: #edf0f2;
+  --surface: #ffffff;
+  --surface2: #f5f7f8;
+  --ink: #121c26;
+  --muted: #586674;
+  --line: #d5dce2;
+  --accent: #2748d8;
+  --on-accent: #ffffff;
+  --bad: #b3362b;
+  --font: 'Apple SD Gothic Neo', 'Malgun Gothic', system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0e141a;
+    --surface: #161e26;
+    --surface2: #1b252f;
+    --ink: #e7edf2;
+    --muted: #93a2b0;
+    --line: #2a3743;
+    --accent: #7b97ff;
+    --on-accent: #0e141a;
+    --bad: #f08377;
+    color-scheme: dark;
+  }
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font);
+  font-size: 14px;
+  line-height: 1.55;
+}
+button, input { font: inherit; color: inherit; }
+
+.page { max-width: 1080px; margin: 0 auto; padding: 20px 16px 40px; display: flex; flex-direction: column; gap: 16px; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 16px; }
+.center { max-width: 360px; margin: 60px auto 0; }
+.stack { display: flex; flex-direction: column; gap: 8px; }
+.row { display: flex; gap: 8px; align-items: center; }
+.muted { color: var(--muted); font-size: 12px; }
+.error { color: var(--bad); font-size: 12px; }
+
+input {
+  border: 1px solid var(--line);
+  background: var(--surface2);
+  border-radius: 5px;
+  padding: 8px 10px;
+  width: 100%;
+}
+.btn {
+  border: 0; background: var(--accent); color: var(--on-accent);
+  font-weight: 600; padding: 8px 14px; border-radius: 5px; cursor: pointer;
+}
+.btn.ghost { background: var(--surface); color: var(--ink); border: 1px solid var(--line); }
