@@ -11,7 +11,15 @@ export interface LayoutItem {
   h: number
 }
 
-export type WidgetLayout = Partial<Record<Breakpoint, LayoutItem>>
+/**
+ * 고정 열 보기. c2 = 2col(반반), c1 = 1col(한 줄씩).
+ * 이 두 보기에서는 폭이 정해져 있어서 x(왼/오른쪽)와 y(순서)만 의미가 있다.
+ */
+export type ColMode = 'c2' | 'c1'
+
+export type LayoutKey = Breakpoint | ColMode
+
+export type WidgetLayout = Partial<Record<LayoutKey, LayoutItem>>
 
 export interface Dashboard {
   id: string

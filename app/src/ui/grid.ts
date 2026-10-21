@@ -6,3 +6,10 @@ export const BREAKPOINTS: Record<Breakpoint, number> = { lg: 1000, md: 640, sm: 
 export const COLS: Record<Breakpoint, number> = { lg: 12, md: 6, sm: 1 }
 export const BP_KEYS: Breakpoint[] = ['lg', 'md', 'sm']
 export const ROW_HEIGHT = 48
+
+// 컨테이너(페이지) 폭이 이보다 좁으면 보기 설정과 상관없이 무조건 1col로 보인다.
+// 1920px 모니터의 반절 화면(960px)에서 좌우 여백을 뺀 값보다 조금 작게 잡았다.
+export const FORCE_1COL_BELOW = 900
+
+export type ViewMode = 'free' | '2col' | '1col'
+export const VIEW_STORAGE_KEY = 'app.viewMode'

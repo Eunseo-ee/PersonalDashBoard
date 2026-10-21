@@ -25,3 +25,19 @@ export function mondayOf(d: Date): Date {
 export function daysInMonth(d: Date): number {
   return new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate()
 }
+
+/** 'YYYY-MM-DD' 문자열을 그날 0시(로컬)의 Date로. 형식이 틀리면 null */
+export function parseKey(key: string): Date | null {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(key)
+  if (!m) return null
+  return new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]))
+}
+
+/** 오늘부터 그 날짜까지 남은 일수. 오늘이면 0, 지났으면 음수 */
+export function daysUntil(key: string): number | null {
+  const target = parseKey(key)
+  if (!target) return null
+  const t = new Date()
+  const today = new Date(t.getFullYear(), t.getMonth(), t.getDate())
+  return Math.round((target.getTime() - today.getTime()) / 86400000)
+}

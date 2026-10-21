@@ -8,4 +8,6 @@ export interface WidgetProps {
   onChange: (patch: { config?: Record<string, unknown>; data?: Record<string, unknown> }) => void
   /** 대시보드가 편집 모드인지 */
   editing: boolean
+  /** 제목 옆 "+" 버튼이 켜져 있는지. 추가 입력란은 이 값이 true일 때만 보여 준다. */
+  adding: boolean
 }

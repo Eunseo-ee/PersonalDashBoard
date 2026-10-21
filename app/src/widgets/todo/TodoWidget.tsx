@@ -8,7 +8,7 @@ interface TodoItem {
   done: boolean
 }
 
-export function TodoWidget({ data, onChange }: WidgetProps) {
+export function TodoWidget({ data, onChange, adding }: WidgetProps) {
   const items = (data.items as TodoItem[] | undefined) ?? []
   const [text, setText] = useState('')
 
@@ -48,18 +48,21 @@ export function TodoWidget({ data, onChange }: WidgetProps) {
             </button>
           </li>
         ))}
-        {items.length === 0 && <li className="muted">할 일을 추가해 보세요.</li>}
+        {items.length === 0 && <li className="muted">제목 옆 + 버튼으로 할 일을 추가해 보세요.</li>}
       </ul>
-      <form className="row todo-form" onSubmit={add}>
-        <input
-          type="text"
-          placeholder="할 일 추가"
-          maxLength={80}
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-        />
-        <button className="btn" type="submit">추가</button>
-      </form>
+      {adding && (
+        <form className="row todo-form" onSubmit={add}>
+          <input
+            type="text"
+            placeholder="할 일 추가"
+            maxLength={80}
+            autoFocus
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+          />
+          <button className="btn" type="submit">추가</button>
+        </form>
+      )}
     </div>
   )
 }

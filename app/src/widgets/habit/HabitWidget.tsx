@@ -11,7 +11,7 @@ interface Habit {
 type Checks = Record<string, string[]>
 type View = 'week' | 'month'
 
-export function HabitWidget({ data, onChange, editing }: WidgetProps) {
+export function HabitWidget({ data, onChange, editing, adding }: WidgetProps) {
   const habits = (data.habits as Habit[] | undefined) ?? []
   const checks = (data.checks as Checks | undefined) ?? {}
 
@@ -96,17 +96,17 @@ export function HabitWidget({ data, onChange, editing }: WidgetProps) {
     </div>
   )
 
-  const addForm = (
+  const addForm = adding ? (
     <form className="row habit-form" onSubmit={addHabit}>
-      <input type="text" placeholder="습관 추가 (예: 운동)" maxLength={30} value={name} onChange={(e) => setName(e.target.value)} />
+      <input type="text" placeholder="습관 추가 (예: 운동)" maxLength={30} autoFocus value={name} onChange={(e) => setName(e.target.value)} />
       <button className="btn" type="submit">추가</button>
     </form>
-  )
+  ) : null
 
   if (habits.length === 0) {
     return (
       <div className="habit">
-        <p className="muted">습관을 추가하면 칸을 눌러 그날 한 걸로 표시할 수 있어요.</p>
+        <p className="muted">제목 옆 + 버튼으로 습관을 추가하면, 칸을 눌러 그날 한 걸로 표시할 수 있어요.</p>
         {addForm}
       </div>
     )

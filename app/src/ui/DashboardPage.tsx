@@ -7,10 +7,12 @@ import 'react-resizable/css/styles.css'
 import { createWidget, deleteWidget, getOrCreateDashboard, listWidgets, updateWidget } from '../core/dashboards'
 import type { WidgetPatch } from '../core/dashboards'
 import { supabase } from '../core/supabase'
-import type { Dashboard, WidgetLayout, WidgetRow } from '../core/types'
+import type { Dashboard, LayoutKey, WidgetLayout, WidgetRow } from '../core/types'
 import { widgetRegistry } from '../widgets/registry'
 import type { WidgetProps } from '../widgets/types'
-import { BP_KEYS, BREAKPOINTS, COLS, ROW_HEIGHT } from './grid'
+import { AddWidgetMenu } from './AddWidgetMenu'
+import { BP_KEYS, BREAKPOINTS, COLS, FORCE_1COL_BELOW, ROW_HEIGHT, VIEW_STORAGE_KEY } from './grid'
+import type { ViewMode } from './grid'
 import { WidgetCard } from './WidgetCard'
 
 type SaveStatus = 'saved' | 'saving' | 'error'
@@ -18,6 +20,25 @@ const STATUS_TEXT: Record<SaveStatus, string> = {
   saved: '저장됨',
   saving: '저장 중…',
   error: '저장하지 못했어요. 잠시 후 다시 시도해 주세요',
+}
+
+function loadViewMode(): ViewMode {
+  try {
+    const v = localStorage.getItem(VIEW_STORAGE_KEY)
+    return v === '2col' || v === '1col' ? v : 'free'
+  } catch {
+    return 'free'
+  }
+}
+
+interface GridItem {
+  i: string
+  x: number
+  y: number
+  w: number
+  h: number
+  minW: number
+  minH: number
 }
 
 export function DashboardPage({ session }: { session: Session }) {
@@ -28,6 +49,26 @@ export function DashboardPage({ session }: { session: Session }) {
   const [status, setStatus] = useState<SaveStatus>('saved')
   const { width, containerRef, mounted } = useContainerWidth()
   const bp = getBreakpointFromWidth(BREAKPOINTS, width)
+  const [viewMode, setViewModeState] = useState<ViewMode>(loadViewMode)
+
+  function setViewMode(next: ViewMode) {
+    setViewModeState(next)
+    try {
+      localStorage.setItem(VIEW_STORAGE_KEY, next)
+    } catch {
+      // 저장이 막힌 환경이면 이번 방문에만 적용된다.
+    }
+  }
+
+  // 지금 실제로 쓰는 배치 종류.
+  //  - 좁은 화면: 무조건 1col
+  //  - 2col / 1col 버튼을 켰으면 그대로
+  //  - 아니면 자유 배치(화면 폭에 따라 lg/md)
+  const forced1 = mounted && width < FORCE_1COL_BELOW
+  const gridKey: LayoutKey = forced1 || viewMode === '1col' ? 'c1' : viewMode === '2col' ? 'c2' : bp
+  const fixedCols = gridKey === 'c2' ? 2 : gridKey === 'c1' ? 1 : 0
+  // 크기 조절은 넓은 화면의 자유 배치(lg)에서만 켠다. 반절 화면·2col·1col에서는 끈다.
+  const canResize = editing && fixedCols === 0 && gridKey === 'lg'
 
   // 화면 상태와 같은 값을 ref에도 들고 있어서, 이벤트 핸들러가 항상 최신 목록을 본다.
   const widgetsRef = useRef<WidgetRow[]>([])
@@ -148,9 +189,15 @@ export function DashboardPage({ session }: { session: Session }) {
     const next = widgetsRef.current.map((w) => {
       const it = layout.find((l) => l.i === w.id)
       if (!it) return w
-      const old = w.layout[bp]
-      if (old && old.x === it.x && old.y === it.y && old.w === it.w && old.h === it.h) return w
-      const updated = { ...w, layout: { ...w.layout, [bp]: { x: it.x, y: it.y, w: it.w, h: it.h } } }
+      if (fixedCols > 0) {
+        // 2col/1col: 폭과 높이는 정해져 있으니 위치(x, y)만 비교·저장한다.
+        const shown = gridItems.find((g) => g.i === w.id)
+        if (shown && shown.x === it.x && shown.y === it.y) return w
+      } else {
+        const old = w.layout[gridKey]
+        if (old && old.x === it.x && old.y === it.y && old.w === it.w && old.h === it.h) return w
+      }
+      const updated = { ...w, layout: { ...w.layout, [gridKey]: { x: it.x, y: it.y, w: it.w, h: it.h } } }
       changed.push(updated)
       return updated
     })
@@ -159,7 +206,27 @@ export function DashboardPage({ session }: { session: Session }) {
     for (const w of changed) persist(w.id, { layout: w.layout })
   }
 
-  // 저장된 배치를 그리드가 이해하는 형태로 바꾼다. 저장된 적 없는 구간은 그리드가 알아서 만들어 준다.
+  // 2col/1col 배치: 순서는 저장된 위치(없으면 자유 배치의 위치)를 따르고,
+  // 폭은 칸 하나, 높이는 자유 배치(lg)에서 정한 높이를 그대로 쓴다.
+  const gridItems = useMemo<GridItem[]>(() => {
+    if (fixedCols === 0) return []
+    const key = fixedCols === 2 ? 'c2' : 'c1'
+    const rank = (w: WidgetRow) => {
+      const own = w.layout[key]
+      const base = w.layout.lg ?? w.layout.md ?? w.layout.sm
+      return own ? own.y * 10 + own.x : base ? 1e5 + base.y * 10 + base.x : 1e9
+    }
+    const sorted = [...widgets].sort((a, b) => rank(a) - rank(b) || a.created_at.localeCompare(b.created_at))
+    return sorted.map((w, idx) => {
+      const own = w.layout[key]
+      const h = (w.layout.lg ?? w.layout.md ?? w.layout.sm)?.h ?? 8
+      return own
+        ? { i: w.id, x: Math.min(own.x, fixedCols - 1), y: own.y, w: 1, h, minW: 1, minH: 3 }
+        : { i: w.id, x: idx % fixedCols, y: 1e4 + idx, w: 1, h, minW: 1, minH: 3 }
+    })
+  }, [widgets, fixedCols])
+
+  // 자유 배치용: 저장된 배치를 그리드가 이해하는 형태로 바꾼다. 저장된 적 없는 구간은 그리드가 알아서 만들어 준다.
   const layouts = useMemo(() => {
     const out: ResponsiveLayouts = {}
     for (const key of BP_KEYS) {
@@ -181,11 +248,29 @@ export function DashboardPage({ session }: { session: Session }) {
         </div>
         <div className="topbar-tools">
           <span className="muted save-status" data-s={status} role="status">{STATUS_TEXT[status]}</span>
-          {Object.entries(widgetRegistry).map(([type, def]) => (
-            <button key={type} className="btn ghost" disabled={!dashboard} onClick={() => void addWidget(type)}>
-              + {def.label}
+          <div className="seg" role="group" aria-label="보기 방식">
+            <button
+              type="button"
+              className={gridKey === 'c2' ? 'on' : ''}
+              aria-pressed={gridKey === 'c2'}
+              disabled={forced1}
+              title="위젯을 화면의 반씩, 한 줄에 두 개"
+              onClick={() => setViewMode(viewMode === '2col' ? 'free' : '2col')}
+            >
+              2col
             </button>
-          ))}
+            <button
+              type="button"
+              className={gridKey === 'c1' ? 'on' : ''}
+              aria-pressed={gridKey === 'c1'}
+              disabled={forced1}
+              title="위젯을 한 줄에 하나씩"
+              onClick={() => setViewMode(viewMode === '1col' ? 'free' : '1col')}
+            >
+              1col
+            </button>
+          </div>
+          <AddWidgetMenu disabled={!dashboard} onPick={(type) => void addWidget(type)} />
           <button className={editing ? 'btn' : 'btn ghost'} onClick={() => setEditing((v) => !v)}>
             {editing ? '편집 끝내기' : '편집'}
           </button>
@@ -200,23 +285,31 @@ export function DashboardPage({ session }: { session: Session }) {
       )}
       {!loadError && !dashboard && <p className="muted">불러오는 중…</p>}
       {dashboard && editing && (
-        <p className="muted">위젯 제목 줄을 잡고 옮기고, 오른쪽 아래 모서리를 끌어 크기를 바꿀 수 있어요.</p>
+        <p className="muted">
+          위젯 제목 줄을 잡고 옮길 수 있어요.
+          {canResize
+            ? ' 오른쪽 아래 모서리를 끌어 크기도 바꿀 수 있어요.'
+            : ' 이 화면 배치에서는 크기 조절이 꺼져 있어요. (넓은 화면의 자유 배치에서만 가능)'}
+        </p>
       )}
       {dashboard && widgets.length === 0 && (
-        <p className="panel muted">아직 위젯이 없어요. 위쪽의 “+ 할 일” 버튼으로 추가해 보세요.</p>
+        <p className="panel muted">아직 위젯이 없어요. 위쪽의 “+ 추가” 버튼에서 위젯을 골라 보세요.</p>
       )}
 
       <div ref={containerRef}>
         {mounted && dashboard && (
           <Responsive
+            // 자유 배치 ↔ 고정 열 보기를 오갈 때는 그리드를 새로 만든다.
+            key={fixedCols === 0 ? 'free' : gridKey}
             width={width}
-            layouts={layouts}
-            breakpoints={BREAKPOINTS}
-            cols={COLS}
+            layouts={fixedCols === 0 ? layouts : { [gridKey]: gridItems }}
+            breakpoints={fixedCols === 0 ? BREAKPOINTS : { [gridKey]: 0 }}
+            cols={fixedCols === 0 ? COLS : { [gridKey]: fixedCols }}
             rowHeight={ROW_HEIGHT}
             margin={[12, 12]}
+            containerPadding={[0, 0]}
             dragConfig={{ enabled: editing, handle: '.widget-handle', allowMobileScroll: true }}
-            resizeConfig={{ enabled: editing }}
+            resizeConfig={{ enabled: canResize }}
             onDragStop={onLayoutStop}
             onResizeStop={onLayoutStop}
           >
