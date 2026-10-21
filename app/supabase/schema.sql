@@ -32,6 +32,8 @@ create table if not exists public.app_widgets (
   config       jsonb not null default '{}'::jsonb,  -- 제목, 색, 열 정의 등 위젯 설정
   data         jsonb not null default '{}'::jsonb,  -- 위젯 안의 실제 내용
   layout       jsonb not null default '{}'::jsonb,  -- 화면 크기별 위치·크기: {"lg":{"x":0,"y":0,"w":4,"h":3},"sm":{...}}
+  status       text not null default 'active'       -- 'active' 화면에 보임 / 'archived' 보관함 (migrations/20261021_widget_archive.sql)
+               constraint app_widgets_status_check check (status in ('active', 'archived')),
   created_at   timestamptz not null default now(),
   updated_at   timestamptz not null default now()
 );
@@ -39,6 +41,7 @@ create table if not exists public.app_widgets (
 create index if not exists app_dashboards_user_idx on public.app_dashboards(user_id);
 create index if not exists app_widgets_dashboard_idx on public.app_widgets(dashboard_id);
 create index if not exists app_widgets_user_idx on public.app_widgets(user_id);
+create index if not exists app_widgets_dashboard_status_idx on public.app_widgets(dashboard_id, status);
 
 -- 4) updated_at 트리거
 drop trigger if exists app_dashboards_updated_at on public.app_dashboards;

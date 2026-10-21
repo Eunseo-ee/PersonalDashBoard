@@ -1,10 +1,12 @@
-import type { Breakpoint } from '../core/types'
+import type { Breakpoint, LayoutKey } from '../core/types'
 
 // 화면 폭 구간과 칸 수. 폭이 줄어들면 칸 수가 줄고 위젯이 자동으로 재배치된다.
 //   lg: 1000px 이상 12칸 / md: 640px 이상 6칸 / sm: 그 아래 1칸(세로로 쌓임)
 export const BREAKPOINTS: Record<Breakpoint, number> = { lg: 1000, md: 640, sm: 0 }
 export const COLS: Record<Breakpoint, number> = { lg: 12, md: 6, sm: 1 }
 export const BP_KEYS: Breakpoint[] = ['lg', 'md', 'sm']
+/** 저장되는 모든 배치 종류의 칸 수 (자유 배치 구간 + 2col/1col 보기) */
+export const LAYOUT_COLS: Record<LayoutKey, number> = { ...COLS, c2: 2, c1: 1 }
 export const ROW_HEIGHT = 48
 
 // 컨테이너(페이지) 폭이 이보다 좁으면 보기 설정과 상관없이 무조건 1col로 보인다.

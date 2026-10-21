@@ -4,14 +4,24 @@ import { Responsive, getBreakpointFromWidth, useContainerWidth } from 'react-gri
 import type { Layout, ResponsiveLayouts } from 'react-grid-layout'
 import 'react-grid-layout/css/styles.css'
 import 'react-resizable/css/styles.css'
-import { createWidget, deleteWidget, getOrCreateDashboard, listWidgets, updateWidget } from '../core/dashboards'
+import {
+  archiveWidget,
+  createWidget,
+  deleteWidget,
+  getOrCreateDashboard,
+  listArchivedWidgets,
+  listWidgets,
+  restoreWidget,
+  updateWidget,
+} from '../core/dashboards'
 import type { WidgetPatch } from '../core/dashboards'
 import { supabase } from '../core/supabase'
 import type { Dashboard, LayoutKey, WidgetLayout, WidgetRow } from '../core/types'
 import { widgetRegistry } from '../widgets/registry'
 import type { WidgetProps } from '../widgets/types'
 import { AddWidgetMenu } from './AddWidgetMenu'
-import { BP_KEYS, BREAKPOINTS, COLS, FORCE_1COL_BELOW, ROW_HEIGHT, VIEW_STORAGE_KEY } from './grid'
+import { ArchivePanel } from './ArchivePanel'
+import { BP_KEYS, BREAKPOINTS, COLS, FORCE_1COL_BELOW, LAYOUT_COLS, ROW_HEIGHT, VIEW_STORAGE_KEY } from './grid'
 import type { ViewMode } from './grid'
 import { WidgetCard } from './WidgetCard'
 
@@ -44,6 +54,9 @@ interface GridItem {
 export function DashboardPage({ session }: { session: Session }) {
   const [dashboard, setDashboard] = useState<Dashboard | null>(null)
   const [widgets, setWidgets] = useState<WidgetRow[]>([])
+  const [archived, setArchived] = useState<WidgetRow[]>([])
+  const [archiveOpen, setArchiveOpen] = useState(false)
+  const [busyId, setBusyId] = useState<string | null>(null)
   const [loadError, setLoadError] = useState('')
   const [editing, setEditing] = useState(false)
   const [status, setStatus] = useState<SaveStatus>('saved')
@@ -85,11 +98,12 @@ export function DashboardPage({ session }: { session: Session }) {
     let cancelled = false
     getOrCreateDashboard(session.user.id)
       .then(async (d) => {
-        const rows = await listWidgets(d.id)
+        const [rows, archivedRows] = await Promise.all([listWidgets(d.id), listArchivedWidgets(d.id)])
         if (cancelled) return
         setDashboard(d)
         widgetsRef.current = rows
         setWidgets(rows)
+        setArchived(archivedRows)
       })
       .catch((e: unknown) => {
         if (!cancelled) setLoadError(e instanceof Error ? e.message : '알 수 없는 오류')
@@ -168,17 +182,69 @@ export function DashboardPage({ session }: { session: Session }) {
     }
   }
 
-  async function removeWidget(id: string) {
-    if (!window.confirm('이 위젯을 삭제할까요? 안의 내용도 함께 사라져요.')) return
+  /** 아직 DB로 안 보낸 변경을 대기열에서 꺼낸다. (보관할 땐 함께 보내고, 삭제할 땐 버린다) */
+  function takePending(id: string): WidgetPatch | undefined {
     const cur = pendingRef.current.get(id)
-    if (cur) window.clearTimeout(cur.timer)
+    if (!cur) return undefined
+    window.clearTimeout(cur.timer)
     pendingRef.current.delete(id)
+    return cur.patch
+  }
+
+  // 보관: 화면에서만 빼고 기록은 DB에 그대로 둔다.
+  async function archive(id: string) {
+    const target = widgetsRef.current.find((w) => w.id === id)
+    if (!target) return
+    const unsaved = takePending(id)
     updateWidgets((prev) => prev.filter((w) => w.id !== id))
     try {
-      await deleteWidget(id)
+      setStatus('saving')
+      const row = await archiveWidget(id, unsaved)
+      setArchived((prev) => [row, ...prev])
+      setStatus('saved')
+    } catch (e) {
+      console.error(e)
+      // 보관에 실패하면 화면에 되돌려 놓는다. (사라진 것처럼 보이지 않게)
+      updateWidgets((prev) => [...prev, target])
+      if (unsaved) persist(id, unsaved)
+      setStatus('error')
+    }
+  }
+
+  // 완전 삭제: 위젯과 그 기록을 DB에서 지운다. 대시보드·보관함 어디서 지우든 같은 확인을 거친다.
+  async function remove(widget: WidgetRow) {
+    if (!window.confirm('이 위젯을 완전히 삭제할까요?\n이 위젯의 기록도 모두 영구 삭제됩니다. 되돌릴 수 없어요.')) return
+    takePending(widget.id)
+    const shown = widgetsRef.current.find((w) => w.id === widget.id)
+    const wasActive = shown !== undefined
+    if (wasActive) updateWidgets((prev) => prev.filter((w) => w.id !== widget.id))
+    setBusyId(widget.id)
+    try {
+      await deleteWidget(widget.id)
+      if (!wasActive) setArchived((prev) => prev.filter((w) => w.id !== widget.id))
+    } catch (e) {
+      console.error(e)
+      if (shown) updateWidgets((prev) => [...prev, shown])
+      setStatus('error')
+    } finally {
+      setBusyId(null)
+    }
+  }
+
+  // 복원: 원래 위치·크기·설정 그대로. 원래 자리가 차 있으면 빈 자리로 옮겨 준다.
+  async function restore(widget: WidgetRow) {
+    setBusyId(widget.id)
+    try {
+      setStatus('saving')
+      const row = await restoreWidget(widget, widgetsRef.current, LAYOUT_COLS)
+      setArchived((prev) => prev.filter((w) => w.id !== widget.id))
+      updateWidgets((prev) => [...prev, row])
+      setStatus('saved')
     } catch (e) {
       console.error(e)
       setStatus('error')
+    } finally {
+      setBusyId(null)
     }
   }
 
@@ -271,6 +337,15 @@ export function DashboardPage({ session }: { session: Session }) {
             </button>
           </div>
           <AddWidgetMenu disabled={!dashboard} onPick={(type) => void addWidget(type)} />
+          <button
+            type="button"
+            className={archiveOpen ? 'btn' : 'btn ghost'}
+            aria-expanded={archiveOpen}
+            disabled={!dashboard}
+            onClick={() => setArchiveOpen((v) => !v)}
+          >
+            보관함{archived.length > 0 ? ` (${archived.length})` : ''}
+          </button>
           <button className={editing ? 'btn' : 'btn ghost'} onClick={() => setEditing((v) => !v)}>
             {editing ? '편집 끝내기' : '편집'}
           </button>
@@ -284,6 +359,15 @@ export function DashboardPage({ session }: { session: Session }) {
         </p>
       )}
       {!loadError && !dashboard && <p className="muted">불러오는 중…</p>}
+      {dashboard && archiveOpen && (
+        <ArchivePanel
+          widgets={archived}
+          busyId={busyId}
+          onRestore={(w) => void restore(w)}
+          onDelete={(w) => void remove(w)}
+          onClose={() => setArchiveOpen(false)}
+        />
+      )}
       {dashboard && editing && (
         <p className="muted">
           위젯 제목 줄을 잡고 옮길 수 있어요.
@@ -319,7 +403,8 @@ export function DashboardPage({ session }: { session: Session }) {
                   widget={w}
                   editing={editing}
                   onChange={(patch) => changeWidget(w.id, patch)}
-                  onDelete={() => void removeWidget(w.id)}
+                  onArchive={() => void archive(w.id)}
+                  onDelete={() => void remove(w)}
                 />
               </div>
             ))}

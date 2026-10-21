@@ -7,11 +7,12 @@ interface Props {
   widget: WidgetRow
   editing: boolean
   onChange: WidgetProps['onChange']
+  onArchive: () => void
   onDelete: () => void
 }
 
-/** 모든 위젯을 감싸는 공통 껍데기: 제목 줄, 편집 모드의 이동 손잡이와 삭제 버튼. */
-export function WidgetCard({ widget, editing, onChange, onDelete }: Props) {
+/** 모든 위젯을 감싸는 공통 껍데기: 제목 줄, 편집 모드의 이동 손잡이와 보관/삭제 버튼. */
+export function WidgetCard({ widget, editing, onChange, onArchive, onDelete }: Props) {
   const def = widgetRegistry[widget.type]
   const title = typeof widget.config.title === 'string' ? widget.config.title : (def?.label ?? widget.type)
   const Body = def?.component
@@ -45,9 +46,14 @@ export function WidgetCard({ widget, editing, onChange, onDelete }: Props) {
           )}
         </div>
         {editing && (
-          <button type="button" className="icon-btn" aria-label="위젯 삭제" onClick={onDelete}>
-            ×
-          </button>
+          <div className="widget-actions">
+            <button type="button" className="head-btn" title="화면에서만 숨기고 기록은 남겨요" onClick={onArchive}>
+              보관
+            </button>
+            <button type="button" className="head-btn danger" title="위젯과 기록을 영구 삭제해요" onClick={onDelete}>
+              삭제
+            </button>
+          </div>
         )}
       </div>
       <div className="widget-body">

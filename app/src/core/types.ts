@@ -30,6 +30,9 @@ export interface Dashboard {
   updated_at: string
 }
 
+/** active = 대시보드에 보임, archived = 보관함에 있음 (config/data/layout은 그대로 남아 있다) */
+export type WidgetStatus = 'active' | 'archived'
+
 /** type 문자열은 widgets/registry.ts에 등록된 위젯 종류와 맞춰야 한다. */
 export interface WidgetRow {
   id: string
@@ -39,6 +42,7 @@ export interface WidgetRow {
   config: Record<string, unknown>
   data: Record<string, unknown>
   layout: WidgetLayout
+  status: WidgetStatus
   created_at: string
   updated_at: string
 }
