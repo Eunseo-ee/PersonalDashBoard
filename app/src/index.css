@@ -283,3 +283,10 @@ button.grass-cell:hover { border-color: var(--accent); }
 .status-edit-item input, .status-edit-item select { padding: 5px 8px; min-width: 0; }
 .status-edit-item select { width: auto; flex: none; }
 .status-add { align-self: flex-start; }
+
+/* 프리셋 선택 창 */
+.modal-backdrop { position: fixed; inset: 0; z-index: 100; display: flex; align-items: flex-start; justify-content: center; padding: 8vh 16px 16px; background: rgba(0, 0, 0, .4); overflow-y: auto; }
+.modal { width: 100%; max-width: 520px; box-shadow: 0 8px 32px rgba(0, 0, 0, .3); }
+.radio-row { display: flex; gap: 10px; align-items: flex-start; padding: 10px 0; border-top: 1px solid var(--line); cursor: pointer; }
+.radio-row > span { display: flex; flex-direction: column; gap: 2px; }
+.modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 8px; }

@@ -15,12 +15,15 @@ import {
   updateWidget,
 } from '../core/dashboards'
 import type { WidgetPatch } from '../core/dashboards'
+import { applyPreset } from '../core/presets'
+import type { ApplyMode } from '../core/presets'
 import { supabase } from '../core/supabase'
-import type { Dashboard, LayoutKey, WidgetLayout, WidgetRow } from '../core/types'
+import type { Dashboard, LayoutKey, Preset, WidgetLayout, WidgetRow } from '../core/types'
 import { widgetRegistry } from '../widgets/registry'
 import type { WidgetProps } from '../widgets/types'
 import { AddWidgetMenu } from './AddWidgetMenu'
 import { ArchivePanel } from './ArchivePanel'
+import { PresetDialog } from './PresetDialog'
 import { BP_KEYS, BREAKPOINTS, COLS, FORCE_1COL_BELOW, LAYOUT_COLS, ROW_HEIGHT, VIEW_STORAGE_KEY } from './grid'
 import type { ViewMode } from './grid'
 import { WidgetCard } from './WidgetCard'
@@ -56,6 +59,7 @@ export function DashboardPage({ session }: { session: Session }) {
   const [widgets, setWidgets] = useState<WidgetRow[]>([])
   const [archived, setArchived] = useState<WidgetRow[]>([])
   const [archiveOpen, setArchiveOpen] = useState(false)
+  const [presetOpen, setPresetOpen] = useState(false)
   const [busyId, setBusyId] = useState<string | null>(null)
   const [loadError, setLoadError] = useState('')
   const [editing, setEditing] = useState(false)
@@ -248,6 +252,37 @@ export function DashboardPage({ session }: { session: Session }) {
     }
   }
 
+  // 프리셋 적용. 실패하면 오류를 던져서 선택 창이 알린다. (DB 쪽은 한 트랜잭션이라 반쯤 적용되지 않는다)
+  async function applyPresetChoice(preset: Preset, mode: ApplyMode) {
+    if (!dashboard) return
+    // 아직 저장 안 된 변경을 먼저 DB에 올린다. (보관하는 위젯의 마지막 기록이 빠지지 않게)
+    for (const id of [...pendingRef.current.keys()]) {
+      const patch = takePending(id)
+      if (!patch) continue
+      try {
+        await updateWidget(id, patch)
+      } catch (e) {
+        console.error(e)
+        persist(id, patch)
+        throw new Error('저장하지 못한 변경이 있어 적용을 멈췄어요.')
+      }
+    }
+    setStatus('saving')
+    try {
+      const created = await applyPreset(dashboard.id, preset, mode, widgetsRef.current, widgetRegistry, LAYOUT_COLS)
+      if (mode === 'archive') {
+        updateWidgets(() => created)
+        setArchived(await listArchivedWidgets(dashboard.id))
+      } else {
+        updateWidgets((prev) => [...prev, ...created])
+      }
+      setStatus(pendingRef.current.size === 0 ? 'saved' : 'saving')
+    } catch (e) {
+      setStatus(pendingRef.current.size === 0 ? 'saved' : 'saving')
+      throw e
+    }
+  }
+
   // 드래그/리사이즈가 끝났을 때만 저장한다. 지금 보고 있는 화면 구간(bp)의 배치만 바꾸고,
   // 다른 구간(예: 모바일)의 배치는 건드리지 않는다.
   function onLayoutStop(layout: Layout) {
@@ -337,6 +372,9 @@ export function DashboardPage({ session }: { session: Session }) {
             </button>
           </div>
           <AddWidgetMenu disabled={!dashboard} onPick={(type) => void addWidget(type)} />
+          <button type="button" className="btn ghost" disabled={!dashboard} onClick={() => setPresetOpen(true)}>
+            프리셋
+          </button>
           <button
             type="button"
             className={archiveOpen ? 'btn' : 'btn ghost'}
@@ -359,6 +397,13 @@ export function DashboardPage({ session }: { session: Session }) {
         </p>
       )}
       {!loadError && !dashboard && <p className="muted">불러오는 중…</p>}
+      {dashboard && presetOpen && (
+        <PresetDialog
+          activeCount={widgets.length}
+          onApply={applyPresetChoice}
+          onClose={() => setPresetOpen(false)}
+        />
+      )}
       {dashboard && archiveOpen && (
         <ArchivePanel
           widgets={archived}

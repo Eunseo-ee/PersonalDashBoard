@@ -2,12 +2,12 @@ import type { LayoutItem, LayoutKey, WidgetLayout, WidgetRow } from './types'
 
 // 그리드 배치 계산(순수 함수). DB나 화면을 모르므로 앱에서도 그대로 쓸 수 있다.
 
-function overlaps(a: LayoutItem, b: LayoutItem): boolean {
+export function overlaps(a: LayoutItem, b: LayoutItem): boolean {
   return a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h
 }
 
 /** 겹치지 않는 가장 위·왼쪽 빈 자리. 중간에 빈 곳이 없으면 맨 아래에 붙인다. */
-function findFreeSpot(w: number, h: number, cols: number, taken: LayoutItem[]): LayoutItem {
+export function findFreeSpot(w: number, h: number, cols: number, taken: LayoutItem[]): LayoutItem {
   const bottom = taken.reduce((m, t) => Math.max(m, t.y + t.h), 0)
   for (let y = 0; y < bottom; y++) {
     for (let x = 0; x + w <= cols; x++) {

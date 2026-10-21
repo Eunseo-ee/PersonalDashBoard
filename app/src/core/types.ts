@@ -46,3 +46,27 @@ export interface WidgetRow {
   created_at: string
   updated_at: string
 }
+
+/**
+ * 프리셋에 담기는 위젯 하나. 구조만 담는다 — 기록(data)은 없다.
+ * 위치·크기(x, y, w, h)는 넓은 화면(lg, 12칸) 기준이고, 중간/좁은 화면 배치는 적용할 때 계산한다.
+ */
+export interface PresetItem {
+  type: string
+  title: string
+  config: Record<string, unknown>
+  x: number
+  y: number
+  w: number
+  h: number
+}
+
+/** app_presets 한 행. owner_id가 null이면 시스템 프리셋, 값이 있으면 사용자 프리셋. */
+export interface Preset {
+  id: string
+  owner_id: string | null
+  name: string
+  description: string
+  layout: PresetItem[]
+  created_at: string
+}
